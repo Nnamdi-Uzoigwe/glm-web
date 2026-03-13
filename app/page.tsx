@@ -10,16 +10,12 @@ import Footer from "@/components/Footer";
 export default function HomePage() {
   return (
     <>
-      <Navbar />
-      <main>
         <HeroSection />
         <MissionSection />
         <FeaturedSermon />
         <CoursesPreview />
         <EventsSection />
         <GiveSection />
-      </main>
-      <Footer />
     </>
   );
 }
