@@ -1,342 +1,156 @@
+"use client";
+
 import Link from "next/link";
+import { useState, useEffect } from "react";
+
+const SLIDES = [
+  {
+    id: 1,
+    image: "/hero-1.jpg",
+  },
+  {
+    id: 2,
+    image: "/hero-2.jpg",
+  },
+  {
+    id: 3,
+    image: "/hero-3.jpg",
+  },
+];
 
 export default function HeroSection() {
+  const [current, setCurrent] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      goToNext();
+    }, 5500);
+    return () => clearInterval(timer);
+  }, [current]);
+
+  const goTo = (index: number) => {
+    if (isTransitioning || index === current) return;
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setCurrent(index);
+      setIsTransitioning(false);
+    }, 400);
+  };
+
+  const goToNext = () => {
+    goTo((current + 1) % SLIDES.length);
+  };
+
+  const goPrev = () => {
+    goTo((current - 1 + SLIDES.length) % SLIDES.length);
+  };
+
   return (
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap');
-
-        .hero {
-          position: relative;
-          min-height: 100vh;
-          display: flex;
-          align-items: center;
-          overflow: hidden;
-          background: #0c1f3d;
-          font-family: 'DM Sans', sans-serif;
-        }
-        .hero-bg {
-          position: absolute;
-          inset: 0;
-          background:
-            radial-gradient(ellipse 80% 60% at 60% 40%, rgba(27,58,107,0.85) 0%, transparent 70%),
-            radial-gradient(ellipse 50% 80% at 10% 80%, rgba(201,144,42,0.12) 0%, transparent 60%),
-            linear-gradient(135deg, #0c1f3d 0%, #1B3A6B 60%, #0c1f3d 100%);
-        }
-        .hero-grid {
-          position: absolute;
-          inset: 0;
-          background-image:
-            linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-          background-size: 60px 60px;
-        }
-        .hero-glow {
-          position: absolute;
-          top: 20%;
-          right: 10%;
-          width: 500px;
-          height: 500px;
-          background: radial-gradient(circle, rgba(201,144,42,0.15) 0%, transparent 65%);
-          border-radius: 50%;
-          pointer-events: none;
-        }
-        .hero-glow-2 {
-          position: absolute;
-          bottom: 10%;
-          left: 5%;
-          width: 300px;
-          height: 300px;
-          background: radial-gradient(circle, rgba(27,58,107,0.4) 0%, transparent 65%);
-          border-radius: 50%;
-          pointer-events: none;
-        }
-
-        .hero-inner {
-          position: relative;
-          z-index: 2;
-          max-width: 1280px;
-          margin: 0 auto;
-          padding: 8rem 2rem 4rem;
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          align-items: center;
-          gap: 4rem;
-        }
-
-        .hero-badge {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          background: rgba(201,144,42,0.15);
-          border: 1px solid rgba(201,144,42,0.3);
-          border-radius: 100px;
-          padding: 0.4rem 1rem;
-          margin-bottom: 1.5rem;
-        }
-        .hero-badge-dot {
-          width: 6px; height: 6px;
-          background: #C9902A;
-          border-radius: 50%;
-          animation: pulse-dot 2s infinite;
-        }
+        .font-cormorant { font-family: 'Cormorant Garamond', serif; }
+        .font-dm { font-family: 'DM Sans', sans-serif; }
         @keyframes pulse-dot {
           0%, 100% { opacity: 1; transform: scale(1); }
           50% { opacity: 0.5; transform: scale(0.8); }
         }
-        .hero-badge-text {
-          font-size: 0.78rem;
-          font-weight: 500;
-          color: #f0c97a;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
+        .animate-pulse-dot { animation: pulse-dot 2s infinite; }
+        @keyframes slide-fade-in {
+          from { opacity: 0; transform: scale(1.04); }
+          to   { opacity: 1; transform: scale(1); }
         }
-
-        .hero-title {
-          font-family: 'Cormorant Garamond', serif;
-          font-size: clamp(2.8rem, 5vw, 4.5rem);
-          font-weight: 700;
-          color: #fff;
-          line-height: 1.1;
-          margin: 0 0 1.5rem;
+        .animate-slide-in { animation: slide-fade-in 0.8s ease forwards; }
+        @keyframes content-up {
+          from { opacity: 0; transform: translateY(22px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
-        .hero-title em {
-          font-style: italic;
-          color: #f0c97a;
-        }
-
-        .hero-desc {
-          font-size: 1.05rem;
-          color: rgba(255,255,255,0.7);
-          line-height: 1.75;
-          max-width: 480px;
-          margin-bottom: 2.5rem;
-          font-weight: 300;
-        }
-
-        .hero-actions {
-          display: flex;
-          gap: 1rem;
-          flex-wrap: wrap;
-        }
-        .hero-btn-primary {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          padding: 0.875rem 2rem;
-          background: linear-gradient(135deg, #C9902A, #e0a83a);
-          color: #fff;
-          font-weight: 600;
-          font-size: 0.95rem;
-          border-radius: 10px;
-          text-decoration: none;
-          transition: all 0.25s;
-          box-shadow: 0 4px 20px rgba(201,144,42,0.35);
-          font-family: 'DM Sans', sans-serif;
-        }
-        .hero-btn-primary:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 28px rgba(201,144,42,0.45);
-        }
-        .hero-btn-secondary {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          padding: 0.875rem 2rem;
-          background: rgba(255,255,255,0.08);
-          color: #fff;
-          font-weight: 500;
-          font-size: 0.95rem;
-          border-radius: 10px;
-          text-decoration: none;
-          transition: all 0.25s;
-          border: 1px solid rgba(255,255,255,0.15);
-          backdrop-filter: blur(8px);
-          font-family: 'DM Sans', sans-serif;
-        }
-        .hero-btn-secondary:hover {
-          background: rgba(255,255,255,0.14);
-          border-color: rgba(255,255,255,0.3);
-        }
-
-        .hero-stats {
-          display: flex;
-          gap: 2.5rem;
-          margin-top: 3.5rem;
-          padding-top: 2rem;
-          border-top: 1px solid rgba(255,255,255,0.08);
-        }
-        .stat-item {}
-        .stat-number {
-          font-family: 'Cormorant Garamond', serif;
-          font-size: 2rem;
-          font-weight: 700;
-          color: #f0c97a;
-          line-height: 1;
-        }
-        .stat-label {
-          font-size: 0.8rem;
-          color: rgba(255,255,255,0.5);
-          text-transform: uppercase;
-          letter-spacing: 0.08em;
-          margin-top: 4px;
-        }
-
-        /* Right side visual card */
-        .hero-visual {
-          position: relative;
-        }
-        .hero-card {
-          background: rgba(255,255,255,0.06);
-          backdrop-filter: blur(20px);
-          border: 1px solid rgba(255,255,255,0.1);
-          border-radius: 20px;
-          padding: 2rem;
-          position: relative;
-          overflow: hidden;
-        }
-        .hero-card::before {
-          content: '';
-          position: absolute;
-          top: 0; left: 0; right: 0;
-          height: 3px;
-          background: linear-gradient(90deg, #C9902A, #f0c97a, #C9902A);
-        }
-        .sermon-label {
-          font-size: 0.75rem;
-          text-transform: uppercase;
-          letter-spacing: 0.1em;
-          color: #C9902A;
-          font-weight: 600;
-          margin-bottom: 1rem;
-        }
-        .sermon-thumb {
-          width: 100%;
-          height: 180px;
-          background: linear-gradient(135deg, #1B3A6B, #0c1f3d);
-          border-radius: 12px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin-bottom: 1.25rem;
-          position: relative;
-          overflow: hidden;
-        }
-        .sermon-thumb::after {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: radial-gradient(circle at 50% 50%, rgba(201,144,42,0.2), transparent 60%);
-        }
-        .play-btn {
-          width: 56px; height: 56px;
-          background: rgba(201,144,42,0.9);
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 1;
-          transition: transform 0.2s;
-          cursor: pointer;
-        }
-        .play-btn:hover { transform: scale(1.1); }
-        .sermon-title {
-          font-family: 'Cormorant Garamond', serif;
-          font-size: 1.2rem;
-          font-weight: 600;
-          color: #fff;
-          margin-bottom: 0.4rem;
-        }
-        .sermon-meta {
-          font-size: 0.82rem;
-          color: rgba(255,255,255,0.5);
-          display: flex;
-          align-items: center;
-          gap: 12px;
-        }
-        .sermon-meta span {
-          display: flex;
-          align-items: center;
-          gap: 4px;
-        }
-
-        .floating-badge {
-          position: absolute;
-          top: -16px;
-          right: 24px;
-          background: #1B3A6B;
-          border: 2px solid rgba(201,144,42,0.4);
-          border-radius: 12px;
-          padding: 0.6rem 1rem;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-        .floating-badge-icon {
-          width: 32px; height: 32px;
-          background: linear-gradient(135deg, #C9902A, #e0a83a);
-          border-radius: 8px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        .floating-badge-text {
-          font-size: 0.8rem;
-          color: #fff;
-          font-weight: 500;
-          line-height: 1.2;
-        }
-        .floating-badge-text span {
-          display: block;
-          font-size: 0.7rem;
-          color: rgba(255,255,255,0.5);
-          font-weight: 400;
-        }
-
-        @media (max-width: 900px) {
-          .hero-inner {
-            grid-template-columns: 1fr;
-            text-align: center;
-            padding-top: 6rem;
-          }
-          .hero-desc { max-width: 100%; }
-          .hero-actions { justify-content: center; }
-          .hero-stats { justify-content: center; }
-          .hero-visual { display: none; }
-        }
+        .animate-content-up { animation: content-up 0.7s ease 0.2s both; }
       `}</style>
 
-      <section className="hero">
-        <div className="hero-bg" />
-        <div className="hero-grid" />
-        <div className="hero-glow" />
-        <div className="hero-glow-2" />
+      <section className="font-dm relative min-h-screen flex items-center overflow-hidden">
 
-        <div className="hero-inner">
-          {/* Left Content */}
-          <div className="hero-content">
-            <div className="hero-badge">
-              <div className="hero-badge-dot" />
-              <span className="hero-badge-text">Live Sunday Service — Join Us</span>
+        {/* ── Background Carousel ─────────────────────────────── */}
+        <div className="absolute inset-0 z-0">
+          {SLIDES.map((slide, i) => (
+            <div
+              key={slide.id}
+              className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+                i === current ? "opacity-100 animate-slide-in" : "opacity-0"
+              }`}
+              style={{
+                backgroundImage: `url(${slide.image})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }}
+            />
+          ))}
+
+          {/* Dark overlay */}
+          <div className="absolute inset-0 bg-linear-to-r from-[#0c1f3d]/90 via-[#0c1f3d]/75 to-[#0c1f3d]/50" />
+          {/* Bottom fade */}
+          <div className="absolute bottom-0 left-0 right-0 h-40 bg-linear-to-t from-[#0c1f3d] to-transparent" />
+        </div>
+
+        {/* ── Subtle Grid Overlay ──────────────────────────────── */}
+        <div
+          className="absolute inset-0 z-0 pointer-events-none"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)",
+            backgroundSize: "60px 60px",
+          }}
+        />
+
+        {/* ── Gold glow accent ────────────────────────────────── */}
+        <div className="absolute top-1/4 right-16 w-96 h-96 rounded-full pointer-events-none z-0"
+          style={{ background: "radial-gradient(circle, rgba(201,144,42,0.18) 0%, transparent 65%)" }} />
+
+        {/* ── Main Content ────────────────────────────────────── */}
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-6 pt-28 pb-24 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+
+          {/* Left */}
+          <div className="animate-content-up">
+            {/* Live badge */}
+            <div className="inline-flex items-center gap-2 bg-[rgba(201,144,42,0.15)] border border-[rgba(201,144,42,0.3)] rounded-full px-4 py-1.5 mb-6">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#C9902A] animate-pulse-dot" />
+              <span className="text-[#f0c97a] text-xs font-medium tracking-widest uppercase">Live Sunday Service — Join Us</span>
             </div>
 
-            <h1 className="hero-title">
-              Spreading the <em>Gospel Light</em> to Every Nation
+            {/* Title */}
+            <h1 className="font-cormorant text-5xl lg:text-[4.2rem] font-bold text-white leading-[1.1] mb-6">
+              Spreading the{" "}
+              <em className="italic text-[#f0c97a]">Gospel Light</em>{" "}
+              to Every Nation
             </h1>
 
-            <p className="hero-desc">
+            {/* Description */}
+            <p className="text-white/70 text-[1.05rem] leading-relaxed font-light max-w-lg mb-10">
               Join a growing community of believers equipped through powerful gospel ministry,
               discipleship courses, and Spirit-filled outreach reaching the world with Christ's love.
             </p>
 
-            <div className="hero-actions">
-              <Link href="/courses" className="hero-btn-primary">
+            {/* CTA buttons */}
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/courses"
+                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-[0.95rem] text-white transition-all duration-200 hover:-translate-y-0.5"
+                style={{
+                  background: "linear-gradient(135deg, #C9902A, #e0a83a)",
+                  boxShadow: "0 4px 20px rgba(201,144,42,0.4)",
+                }}
+              >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
                 </svg>
                 Explore Courses
               </Link>
-              <Link href="/ministry/sermons" className="hero-btn-secondary">
+              <Link
+                href="/ministry/sermons"
+                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-medium text-[0.95rem] text-white border border-white/20 bg-white/8 backdrop-blur-sm transition-all duration-200 hover:bg-white/[0.14] hover:border-white/30"
+                style={{ background: "rgba(255,255,255,0.08)" }}
+              >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                   <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="2"/>
                   <polygon points="10 8 16 12 10 16 10 8" fill="currentColor"/>
@@ -345,54 +159,86 @@ export default function HeroSection() {
               </Link>
             </div>
 
-            <div className="hero-stats">
-              <div className="stat-item">
-                <div className="stat-number">5K+</div>
-                <div className="stat-label">Members</div>
-              </div>
-              <div className="stat-item">
-                <div className="stat-number">40+</div>
-                <div className="stat-label">Courses</div>
-              </div>
-              <div className="stat-item">
-                <div className="stat-number">12</div>
-                <div className="stat-label">Nations</div>
-              </div>
+            {/* Stats */}
+            <div className="flex gap-10 mt-10 pt-8 border-t border-white/10">
+              {[
+                { number: "5K+", label: "Members" },
+                { number: "40+", label: "Courses" },
+                { number: "12",  label: "Nations" },
+              ].map(({ number, label }) => (
+                <div key={label}>
+                  <div className="font-cormorant text-[2rem] font-bold text-[#f0c97a] leading-none">{number}</div>
+                  <div className="text-white/50 text-xs uppercase tracking-widest mt-1">{label}</div>
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Right Visual */}
-          <div className="hero-visual">
-            <div className="floating-badge">
-              <div className="floating-badge-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+          {/* Right — Sermon Card */}
+          <div className="relative hidden lg:block">
+            {/* Floating badge */}
+            <div
+              className="absolute -top-4 right-6 z-10 flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 border"
+              style={{
+                background: "#1B3A6B",
+                borderColor: "rgba(201,144,42,0.4)",
+              }}
+            >
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center"
+                style={{ background: "linear-gradient(135deg, #C9902A, #e0a83a)" }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
                   <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
                 </svg>
               </div>
-              <div className="floating-badge-text">
+              <div className="text-sm text-white font-medium leading-tight">
                 New Course Live
-                <span>Everyday Evangelism</span>
+                <span className="block text-xs text-white/50 font-normal">Everyday Evangelism</span>
               </div>
             </div>
 
-            <div className="hero-card">
-              <div className="sermon-label">🎙 Latest Sermon</div>
-              <div className="sermon-thumb">
-                <div className="play-btn">
+            {/* Main card */}
+            <div
+              className="rounded-2xl p-6 relative overflow-hidden"
+              style={{
+                background: "rgba(255,255,255,0.07)",
+                backdropFilter: "blur(20px)",
+                border: "1px solid rgba(255,255,255,0.12)",
+              }}
+            >
+              {/* Gold top bar */}
+              <div className="absolute top-0 left-0 right-0 h-0.75"
+                style={{ background: "linear-gradient(90deg, #C9902A, #f0c97a, #C9902A)" }} />
+
+              <p className="text-[#C9902A] text-xs font-semibold uppercase tracking-widest mb-4">🎙 Latest Sermon</p>
+
+              {/* Thumbnail */}
+              <div
+                className="w-full h-44 rounded-xl flex items-center justify-center mb-5 relative overflow-hidden"
+                style={{ background: "linear-gradient(135deg, #1B3A6B, #0c1f3d)" }}
+              >
+                <div className="absolute inset-0"
+                  style={{ background: "radial-gradient(circle at 50% 50%, rgba(201,144,42,0.2), transparent 60%)" }} />
+                <button
+                  className="relative z-10 w-14 h-14 rounded-full flex items-center justify-center transition-transform duration-200 hover:scale-110"
+                  style={{ background: "rgba(201,144,42,0.9)" }}
+                >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
                     <polygon points="5 3 19 12 5 21 5 3"/>
                   </svg>
-                </div>
+                </button>
               </div>
-              <div className="sermon-title">Walking in the Light of the Gospel</div>
-              <div className="sermon-meta">
-                <span>
+
+              <div className="font-cormorant text-xl font-semibold text-white mb-2">
+                Walking in the Light of the Gospel
+              </div>
+              <div className="flex items-center gap-4 text-white/50 text-[0.82rem]">
+                <span className="flex items-center gap-1">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                   </svg>
                   42 mins
                 </span>
-                <span>
+                <span className="flex items-center gap-1">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
                   </svg>
@@ -402,6 +248,45 @@ export default function HeroSection() {
             </div>
           </div>
         </div>
+
+        {/* ── Carousel Controls ────────────────────────────────── */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex items-center gap-5">
+          {/* Prev */}
+          <button
+            onClick={goPrev}
+            className="w-8 h-8 rounded-full flex items-center justify-center border border-white/20 bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+          </button>
+
+          {/* Dots */}
+          <div className="flex items-center gap-2">
+            {SLIDES.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => goTo(i)}
+                className={`rounded-full transition-all duration-300 ${
+                  i === current
+                    ? "w-6 h-2 bg-[#C9902A]"
+                    : "w-2 h-2 bg-white/30 hover:bg-white/50"
+                }`}
+              />
+            ))}
+          </div>
+
+          {/* Next */}
+          <button
+            onClick={goToNext}
+            className="w-8 h-8 rounded-full flex items-center justify-center border border-white/20 bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+        </div>
+
       </section>
     </>
   );
