@@ -28,7 +28,7 @@ const navLinks: NavLink[] = [
   },
   { label: "Courses", href: "/courses" },
   { label: "Events", href: "/events" },
-  { label: "Resources", href: "/resources" },
+  { label: "Contact", href: "/contact" },
 ];
 
 export default function Navbar() {
@@ -321,8 +321,8 @@ export default function Navbar() {
 
           {/* Actions */}
           <div className="nav-actions">
-            <Link href="/account/login" className="btn-login">Sign In</Link>
-            <Link href="/give" className="btn-give">Give Now</Link>
+            <Link href="/sign-in" className="btn-login">Sign In</Link>
+            <Link href="/donation" className="btn-give">Donate Now</Link>
           </div>
 
           {/* Hamburger */}
@@ -341,7 +341,7 @@ export default function Navbar() {
       {/* Mobile Menu */}
       <div className={`mobile-menu ${menuOpen ? "open" : ""}`}>
         {navLinks.map((link) => (
-          <div key={link.label}>
+          <div key={link.label} className="flex flex-col gap-1">
             <Link href={link.href} className="mobile-nav-link" onClick={() => setMenuOpen(false)}>
               {link.label}
             </Link>
@@ -353,11 +353,11 @@ export default function Navbar() {
           </div>
         ))}
         <div className="mobile-actions">
-          <Link href="/account/login" className="btn-login" style={{ textAlign: "center" }} onClick={() => setMenuOpen(false)}>
+          <Link href="/sign-in" className="btn-login" style={{ textAlign: "center" }} onClick={() => setMenuOpen(false)}>
             Sign In
           </Link>
-          <Link href="/give" className="btn-give" style={{ textAlign: "center" }} onClick={() => setMenuOpen(false)}>
-            Give Now
+          <Link href="/donation" className="btn-give" style={{ textAlign: "center" }} onClick={() => setMenuOpen(false)}>
+            Donate Now
           </Link>
         </div>
       </div>
