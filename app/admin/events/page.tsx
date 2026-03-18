@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import { events, eventRsvps } from "@/db/schema";
 import { eq, count } from "drizzle-orm";
-import { toggleEventPublished, deleteEvent } from "@/actions/events";
+import { toggleEventPublished, deleteEvent } from "@/app/actions/events";
 
 export default async function AdminEventsPage() {
   const allEvents = await db
