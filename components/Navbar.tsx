@@ -20,10 +20,8 @@ const navLinks: NavLink[] = [
     label: "Ministry",
     href: "/ministry",
     children: [
-      { label: "Sermons", href: "/ministry/sermons" },
       { label: "Devotionals", href: "/ministry/devotionals" },
       { label: "Prayer Wall", href: "/ministry/prayer" },
-      { label: "Missions", href: "/ministry/missions" },
     ],
   },
   { label: "Courses", href: "/courses" },

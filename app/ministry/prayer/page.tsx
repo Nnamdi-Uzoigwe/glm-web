@@ -1,16 +1,24 @@
-import { PrayerHero, PrayerRequestForm, PrayerWall } from "./prayer";
+import { db } from "@/db";
+import { prayerRequests } from "@/db/schema";
+import { desc } from "drizzle-orm";
+import { PrayerHero, PrayerWall } from "./prayer";
 
-export const metadata = {
-  title: "Prayer Wall | Gospel Light Ministries",
-  description: "Share your prayer request and let the community stand with you in faith.",
-};
+export default async function PrayerPage() {
+  const requests = await db
+    .select()
+    .from(prayerRequests)
+    .orderBy(desc(prayerRequests.createdAt));
 
-export default function PrayerPage() {
+  // Mask anonymous names server-side before passing to client
+  const masked = requests.map((r) => ({
+    ...r,
+    name: r.isAnonymous ? "Anonymous" : r.name,
+  }));
+
   return (
     <main>
       <PrayerHero />
-      <PrayerRequestForm />
-      <PrayerWall />
+      <PrayerWall initialRequests={masked} />
     </main>
   );
 }

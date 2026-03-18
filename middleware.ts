@@ -1,38 +1,3 @@
-// import { auth } from "@/auth";
-// // export { auth as middleware } from "@/auth";
-// import { NextResponse } from "next/server";
-
-// // Routes that require authentication
-// const protectedRoutes = ["/account", "/courses"];
-
-// export default auth((req) => {
-//   const { nextUrl, auth: session } = req;
-//   const isLoggedIn = !!session;
-
-//   const isProtected = protectedRoutes.some((route) =>
-//     nextUrl.pathname.startsWith(route)
-//   );
-
-//   // Redirect unauthenticated users trying to access protected routes
-//   if (isProtected && !isLoggedIn) {
-//     const signInUrl = new URL("/sign-in", nextUrl.origin);
-//     signInUrl.searchParams.set("callbackUrl", nextUrl.pathname);
-//     return NextResponse.redirect(signInUrl);
-//   }
-
-//   // Redirect logged-in users away from auth pages
-//   if (isLoggedIn && (nextUrl.pathname === "/sign-in" || nextUrl.pathname === "/register")) {
-//     return NextResponse.redirect(new URL("/account", nextUrl.origin));
-//   }
-
-//   return NextResponse.next();
-// });
-
-// export const config = {
-//   matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
-// };
-
-
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 

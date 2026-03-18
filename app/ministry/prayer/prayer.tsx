@@ -1,7 +1,31 @@
 "use client";
 
-import { useState } from "react";
-import { prayerRequests, prayerCategories, PrayerRequest } from "@/lib/ministry";
+import { useState, useEffect } from "react";
+
+const prayerCategories = [
+  "Health & Healing",
+  "Family & Relationships",
+  "Finance & Career",
+  "Salvation",
+  "Spiritual Growth",
+  "Marriage",
+  "Children",
+  "Breakthrough",
+  "Thanksgiving",
+  "Other",
+];
+
+// ─── TYPES ────────────────────────────────────────────────────────────────────
+
+interface PrayerRequest {
+  id: string;
+  name: string;
+  category: string;
+  request: string;
+  isAnonymous: boolean;
+  prayerCount: number;
+  createdAt: Date | string; // ← allow both
+}
 
 // ─── HERO ─────────────────────────────────────────────────────────────────────
 
@@ -39,27 +63,58 @@ export function PrayerHero() {
 
 // ─── REQUEST FORM ─────────────────────────────────────────────────────────────
 
-export function PrayerRequestForm() {
+export function PrayerRequestForm({ onSubmitted }: { onSubmitted: () => void }) {
   const [form, setForm] = useState({
     name: "",
     category: "",
     request: "",
     anonymous: false,
   });
+  const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 4000);
-    setForm({ name: "", category: "", request: "", anonymous: false });
+    setError("");
+    setSubmitting(true);
+
+    try {
+      const res = await fetch("/api/prayer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.anonymous ? "Anonymous" : form.name,
+          category: form.category,
+          request: form.request,
+          isAnonymous: form.anonymous,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error ?? "Failed to submit. Please try again.");
+        return;
+      }
+
+      setSubmitted(true);
+      setForm({ name: "", category: "", request: "", anonymous: false });
+      onSubmitted(); // refresh the wall
+      setTimeout(() => setSubmitted(false), 5000);
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
+
+  const inputClass = "w-full border text-gray-800 border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]/30 focus:border-[#1B3A6B] bg-white transition-all";
 
   return (
     <section className="bg-white py-14 lg:py-20">
       <div className="max-w-6xl mx-auto px-6">
         <div className="grid lg:grid-cols-2 gap-12 items-start">
-          {/* Left — info */}
+          {/* Left */}
           <div>
             <span className="inline-block text-[#C9902A] text-xs font-semibold tracking-[3px] uppercase mb-3">
               Submit a Request
@@ -103,6 +158,12 @@ export function PrayerRequestForm() {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
+                {error && (
+                  <div className="bg-red-50 border border-red-100 text-red-600 text-sm rounded-xl px-4 py-3">
+                    {error}
+                  </div>
+                )}
+
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">
                     Your Name
@@ -113,7 +174,7 @@ export function PrayerRequestForm() {
                     value={form.anonymous ? "" : form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
                     disabled={form.anonymous}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]/30 focus:border-[#1B3A6B] bg-white disabled:bg-gray-100 disabled:text-gray-400 transition-all"
+                    className={`${inputClass} disabled:bg-gray-100 disabled:text-gray-400`}
                   />
                   <label className="flex items-center gap-2 mt-2 cursor-pointer">
                     <input
@@ -134,7 +195,7 @@ export function PrayerRequestForm() {
                     value={form.category}
                     onChange={(e) => setForm({ ...form, category: e.target.value })}
                     required
-                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]/30 focus:border-[#1B3A6B] bg-white transition-all text-gray-700"
+                    className={inputClass}
                   >
                     <option value="">Select a category</option>
                     {prayerCategories.map((c) => (
@@ -153,15 +214,24 @@ export function PrayerRequestForm() {
                     onChange={(e) => setForm({ ...form, request: e.target.value })}
                     required
                     rows={4}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]/30 focus:border-[#1B3A6B] bg-white resize-none transition-all"
+                    className={`${inputClass} resize-none`}
                   />
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full bg-[#C9902A] hover:bg-[#b57d22] text-white font-semibold py-3 rounded-xl transition-colors duration-200"
+                  disabled={submitting}
+                  className="w-full bg-[#C9902A] hover:bg-[#b57d22] disabled:opacity-60 text-white font-semibold py-3 rounded-xl transition-colors duration-200 flex items-center justify-center gap-2"
                 >
-                  Submit Prayer Request
+                  {submitting ? (
+                    <>
+                      <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                      </svg>
+                      Submitting…
+                    </>
+                  ) : "Submit Prayer Request"}
                 </button>
               </form>
             )}
@@ -172,17 +242,37 @@ export function PrayerRequestForm() {
   );
 }
 
-// ─── PRAYER WALL ──────────────────────────────────────────────────────────────
+// ─── PRAYER CARD ──────────────────────────────────────────────────────────────
 
 function PrayerCard({ request }: { request: PrayerRequest }) {
   const [prayed, setPrayed] = useState(false);
   const [count, setCount] = useState(request.prayerCount);
+  const [loading, setLoading] = useState(false);
 
-  const handlePray = () => {
-    if (!prayed) {
-      setPrayed(true);
-      setCount((c) => c + 1);
+  const handlePray = async () => {
+    if (prayed || loading) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/prayer/${request.id}/pray`, { method: "POST" });
+      if (res.ok) {
+        setPrayed(true);
+        setCount((c) => c + 1);
+      }
+    } catch {
+      // fail silently
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const timeAgo = (date: Date | string) => {
+    const diff = Date.now() - new Date(date).getTime();
+    const days = Math.floor(diff / 86400000);
+    if (days === 0) return "Today";
+    if (days === 1) return "Yesterday";
+    if (days < 7) return `${days} days ago`;
+    if (days < 30) return `${Math.floor(days / 7)}w ago`;
+    return `${Math.floor(days / 30)}mo ago`;
   };
 
   return (
@@ -192,10 +282,10 @@ function PrayerCard({ request }: { request: PrayerRequest }) {
           <span className="text-xs font-semibold text-[#C9902A] uppercase tracking-wide">
             {request.category}
           </span>
-          <p className="text-xs text-gray-400 mt-0.5">{request.date}</p>
+          <p className="text-xs text-gray-400 mt-0.5">{timeAgo(request.createdAt)}</p>
         </div>
         <div className="w-8 h-8 rounded-full bg-[#1B3A6B] flex items-center justify-center text-white text-xs font-bold shrink-0">
-          {request.name === "Anonymous" ? "?" : request.name.slice(0, 2).toUpperCase()}
+          {request.isAnonymous ? "?" : request.name.slice(0, 2).toUpperCase()}
         </div>
       </div>
 
@@ -207,9 +297,10 @@ function PrayerCard({ request }: { request: PrayerRequest }) {
         <p className="text-xs text-gray-500 font-medium">{request.name}</p>
         <button
           onClick={handlePray}
+          disabled={prayed || loading}
           className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full transition-all duration-200 ${
             prayed
-              ? "bg-rose-100 text-rose-600"
+              ? "bg-rose-100 text-rose-600 cursor-default"
               : "bg-gray-100 text-gray-500 hover:bg-rose-100 hover:text-rose-600"
           }`}
         >
@@ -223,29 +314,79 @@ function PrayerCard({ request }: { request: PrayerRequest }) {
   );
 }
 
-export function PrayerWall() {
-  return (
-    <section className="bg-gray-50 py-14 lg:py-20">
-      <div className="max-w-6xl mx-auto px-6">
-        <div className="text-center mb-12">
-          <span className="inline-block text-[#C9902A] text-xs font-semibold tracking-[3px] uppercase mb-3">
-            Community
-          </span>
-          <h2 className="text-2xl lg:text-3xl font-serif text-[#1B3A6B] mb-3">
-            Prayer Wall
-          </h2>
-          <p className="text-sm text-gray-500 max-w-md mx-auto">
-            Click "Praying" on any request to let someone know you're standing
-            with them in faith.
-          </p>
-        </div>
+// ─── PRAYER WALL ──────────────────────────────────────────────────────────────
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {prayerRequests.map((req) => (
-            <PrayerCard key={req.id} request={req} />
-          ))}
+export function PrayerWall({ initialRequests }: { initialRequests: PrayerRequest[] }) {
+  const [requests, setRequests] = useState<PrayerRequest[]>(initialRequests);
+  const [activeCategory, setActiveCategory] = useState("All");
+
+  const refresh = async () => {
+    try {
+      const res = await fetch("/api/prayer");
+      if (res.ok) setRequests(await res.json());
+    } catch {
+      // fail silently
+    }
+  };
+
+  const categories = ["All", ...Array.from(new Set(requests.map((r) => r.category)))];
+
+  const filtered = activeCategory === "All"
+    ? requests
+    : requests.filter((r) => r.category === activeCategory);
+
+  return (
+    <>
+      <PrayerRequestForm onSubmitted={refresh} />
+
+      <section className="bg-gray-50 py-14 lg:py-20">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center mb-10">
+            <span className="inline-block text-[#C9902A] text-xs font-semibold tracking-[3px] uppercase mb-3">
+              Community
+            </span>
+            <h2 className="text-2xl lg:text-3xl font-serif text-[#1B3A6B] mb-3">
+              Prayer Wall
+            </h2>
+            <p className="text-sm text-gray-500 max-w-md mx-auto">
+              Click "Praying" on any request to let someone know you're standing with them in faith.
+            </p>
+          </div>
+
+          {/* Category filter */}
+          {requests.length > 0 && (
+            <div className="flex flex-wrap gap-2 justify-center mb-8">
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                    activeCategory === cat
+                      ? "bg-[#1B3A6B] text-white"
+                      : "bg-white border border-gray-200 text-gray-500 hover:border-[#1B3A6B]/40"
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {filtered.length === 0 ? (
+            <div className="text-center py-16">
+              <p className="text-4xl mb-4">🙏</p>
+              <h3 className="font-serif text-[#1B3A6B] text-xl mb-2">No requests yet</h3>
+              <p className="text-gray-400 text-sm">Be the first to share a prayer request.</p>
+            </div>
+          ) : (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {filtered.map((req) => (
+                <PrayerCard key={req.id} request={req} />
+              ))}
+            </div>
+          )}
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 }

@@ -14,10 +14,8 @@ const footerColumns: FooterColumn[] = [
   {
     heading: "Ministry",
     links: [
-      { label: "Sermons", href: "/ministry/sermons" },
       { label: "Devotionals", href: "/ministry/devotionals" },
       { label: "Prayer Wall", href: "/ministry/prayer" },
-      { label: "Missions & Outreach", href: "/ministry/missions" },
     ],
   },
   {
@@ -25,7 +23,6 @@ const footerColumns: FooterColumn[] = [
     links: [
       { label: "Browse All Courses", href: "/courses" },
       { label: "My Courses", href: "/account/dashboard" },
-      { label: "Instructors", href: "/courses/instructors" },
       { label: "Certificates", href: "/account/certificates" },
     ],
   },
@@ -33,20 +30,12 @@ const footerColumns: FooterColumn[] = [
     heading: "Church",
     links: [
       { label: "About Us", href: "/about" },
-      { label: "Leadership", href: "/about/leadership" },
+      { label: "Leadership", href: "/about" },
       { label: "Events", href: "/events" },
       { label: "Contact", href: "/contact" },
     ],
   },
-  {
-    heading: "Resources",
-    links: [
-      { label: "Blog & Articles", href: "/resources/blog" },
-      { label: "Videos", href: "/resources/videos" },
-      { label: "Podcast", href: "/resources/podcast" },
-      { label: "Store", href: "/resources/store" },
-    ],
-  },
+
 ];
 
 const socials = [

@@ -19,6 +19,6 @@ export default {
   out: "./drizzle",
   dialect: "postgresql",
   dbCredentials: {
-    url: process.env.MIGRARE_DATABASE_URL!,
+    url: process.env.MIGRATE_DATABASE_URL!,
   },
 } satisfies Config;

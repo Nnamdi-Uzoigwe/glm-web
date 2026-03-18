@@ -14,13 +14,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     signIn: "/sign-in",
   },
   providers: [
-    // ── Google OAuth ──────────────────────────────────────────────────────────
+    //Google OAuth 
     Google({
       clientId: process.env.AUTH_GOOGLE_ID!,
       clientSecret: process.env.AUTH_GOOGLE_SECRET!,
     }),
 
-    // ── Email + Password ──────────────────────────────────────────────────────
+    // ── Email + Password
     Credentials({
       name: "credentials",
       credentials: {
@@ -40,7 +40,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         const passwordMatch = await bcrypt.compare(
           credentials.password as string,
-          user.password
+          user.password,
         );
 
         if (!passwordMatch) return null;
@@ -72,23 +72,23 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     // },
 
     async jwt({ token, user }) {
-  if (user && user.id) {
-    token.id = user.id;
-    const dbUser = await db
-      .select({ role: users.role })
-      .from(users)
-      .where(eq(users.id, user.id))
-      .then((r) => r[0]);
-    token.role = dbUser?.role;
-  }
-  return token;
-},
-async session({ session, token }) {
-  if (token && session.user) {
-    session.user.id = token.id as string;
-    session.user.role = token.role as string;
-  }
-  return session;
-},
+      if (user && user.id) {
+        token.id = user.id;
+        const dbUser = await db
+          .select({ role: users.role })
+          .from(users)
+          .where(eq(users.id, user.id))
+          .then((r) => r[0]);
+        token.role = dbUser?.role;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (token && session.user) {
+        session.user.id = token.id as string;
+        session.user.role = token.role as string;
+      }
+      return session;
+    },
   },
 });

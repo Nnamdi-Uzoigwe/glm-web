@@ -1,305 +1,263 @@
+// import Link from "next/link";
+// import { db } from "@/db";
+// import { courses } from "@/db/schema";
+// import { eq, desc } from "drizzle-orm";
+
+// export default async function CoursesPreview() {
+//   const latestCourses = await db
+//     .select()
+//     .from(courses)
+//     .where(eq(courses.published, true))
+//     .orderBy(desc(courses.createdAt))
+//     .limit(3);
+
+//   const mapped = latestCourses.map((c) => ({
+//     id: c.id,
+//     slug: c.slug,
+//     title: c.title,
+//     description: c.description,
+//     instructor: c.instructor,
+//     category: c.category,
+//     level: c.level,
+//     price: c.price,
+//     isFree: c.isFree,
+//     thumbnailUrl: c.thumbnailUrl,
+//   }));
+
+//   return (
+//     <section className="bg-[#f4f6fb] py-24 px-8 font-sans">
+//       <div className="max-w-7xl mx-auto">
+
+//         {/* Header */}
+//         <div className="flex items-end justify-between mb-12 flex-wrap gap-4">
+//           <div>
+//             <p className="text-xs uppercase tracking-widest text-[#C9902A] font-semibold mb-2">
+//               Learn & Grow
+//             </p>
+//             <h2 className="font-serif text-4xl font-bold text-[#1B3A6B] leading-tight">
+//               Featured Courses
+//             </h2>
+//           </div>
+//           <Link
+//             href="/courses"
+//             className="inline-flex items-center gap-1.5 text-sm font-medium text-[#1B3A6B] border-b border-[#1B3A6B]/25 pb-0.5 hover:text-[#C9902A] hover:border-[#C9902A] transition-all"
+//           >
+//             View All Courses
+//             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+//               <path d="M5 12h14M12 5l7 7-7 7" />
+//             </svg>
+//           </Link>
+//         </div>
+
+//         {/* Grid */}
+//         {mapped.length === 0 ? (
+//           <div className="text-center py-20 text-gray-400 text-sm">
+//             No courses available yet. Check back soon!
+//           </div>
+//         ) : (
+//           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+//             {mapped.map((course) => (
+//               <div
+//                 key={course.id}
+//                 className="bg-white rounded-2xl overflow-hidden border border-[#1B3A6B]/6 flex flex-col transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-[#1B3A6B]/10 hover:border-[#1B3A6B]/10"
+//               >
+//                 {/* Thumbnail */}
+//                 <div className="h-40 bg-[#1B3A6B] relative overflow-hidden">
+//                   {course.thumbnailUrl ? (
+//                     <img
+//                       src={course.thumbnailUrl}
+//                       alt={course.title}
+//                       className="w-full h-full object-cover"
+//                     />
+//                   ) : (
+//                     <div className="w-full h-full flex items-center justify-center">
+//                       <svg className="w-12 h-12 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15 10l4.553-2.069A1 1 0 0121 8.87v6.26a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+//                       </svg>
+//                     </div>
+//                   )}
+//                   {/* Glow overlay */}
+//                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(201,144,42,0.15),transparent_60%)]" />
+
+//                   {/* Badges */}
+//                   <div className="absolute top-3 left-3 flex gap-2 z-10">
+//                     <span className="text-[0.7rem] font-bold bg-[#C9902A] text-white px-2.5 py-0.5 rounded-full uppercase tracking-wide">
+//                       {course.category}
+//                     </span>
+//                     <span className="text-[0.7rem] font-semibold bg-white/20 text-white px-2.5 py-0.5 rounded-full backdrop-blur-sm">
+//                       {course.level}
+//                     </span>
+//                   </div>
+//                   <div className="absolute top-3 right-3 z-10">
+//                     <span className={`text-[0.7rem] font-bold px-2.5 py-1 rounded-full ${course.isFree ? "bg-green-500 text-white" : "bg-white text-[#1B3A6B]"}`}>
+//                       {course.isFree ? "FREE" : `₦${(course.price / 100).toLocaleString()}`}
+//                     </span>
+//                   </div>
+//                 </div>
+
+//                 {/* Body */}
+//                 <div className="p-6 flex-1 flex flex-col">
+//                   <h3 className="font-serif text-[#1B3A6B] text-xl font-bold leading-snug mb-2 line-clamp-2">
+//                     {course.title}
+//                   </h3>
+//                   <p className="text-[0.85rem] text-gray-500 leading-relaxed font-light flex-1 line-clamp-2 mb-5">
+//                     {course.description}
+//                   </p>
+
+//                   {/* Instructor */}
+//                   <div className="flex items-center gap-2 pt-4 border-t border-[#1B3A6B]/6">
+//                     <div className="w-6 h-6 rounded-full bg-[#1B3A6B]/10 flex items-center justify-center text-[10px] font-bold text-[#1B3A6B] shrink-0">
+//                       {course.instructor[0]}
+//                     </div>
+//                     <span className="text-xs text-gray-400 truncate">{course.instructor}</span>
+//                   </div>
+//                 </div>
+
+//                 {/* Footer */}
+//                 <div className="px-6 pb-6 flex items-center justify-between">
+//                   <div className="font-serif text-2xl font-bold text-[#1B3A6B]">
+//                     {course.isFree ? (
+//                       "Free"
+//                     ) : (
+//                       <>
+//                         ₦{(course.price / 100).toLocaleString()}
+//                         <span className="font-sans text-sm font-normal text-gray-400 ml-1">/ one-time</span>
+//                       </>
+//                     )}
+//                   </div>
+//                   <Link
+//                     href={`/courses/${course.slug}`}
+//                     className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#1B3A6B] text-white text-sm font-semibold rounded-lg hover:bg-[#C9902A] hover:-translate-y-px transition-all duration-200"
+//                   >
+//                     Enroll
+//                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+//                       <path d="M5 12h14M12 5l7 7-7 7" />
+//                     </svg>
+//                   </Link>
+//                 </div>
+//               </div>
+//             ))}
+//           </div>
+//         )}
+//       </div>
+//     </section>
+//   );
+// }
+
+
 import Link from "next/link";
+import { db } from "@/db";
+import { courses, lessons } from "@/db/schema";
+import { eq, desc } from "drizzle-orm";
 
-interface Course {
-  id: number;
-  title: string;
-  instructor: string;
-  sessions: number;
-  price: number;
-  tag: string;
-  tagColor: string;
-  description: string;
-  icon: string;
-}
+export default async function CoursesPreview() {
+  const latestCourses = await db
+    .select()
+    .from(courses)
+    .where(eq(courses.published, true))
+    .orderBy(desc(courses.createdAt))
+    .limit(3);
 
-const courses: Course[] = [
-  {
-    id: 1,
-    title: "Foundations of the Gospel",
-    instructor: "Pastor James Okafor",
-    sessions: 8,
-    price: 25,
-    tag: "Bestseller",
-    tagColor: "#C9902A",
-    description: "A comprehensive introduction to the core truths of the Gospel and how to live them out daily.",
-    icon: "📖",
-  },
-  {
-    id: 2,
-    title: "Everyday Evangelism",
-    instructor: "Pastor Sarah Adeyemi",
-    sessions: 6,
-    price: 20,
-    tag: "New",
-    tagColor: "#1B3A6B",
-    description: "Practical tools to share your faith naturally in everyday conversations and relationships.",
-    icon: "🌍",
-  },
-  {
-    id: 3,
-    title: "Prayer & Spiritual Growth",
-    instructor: "Elder David Mensah",
-    sessions: 10,
-    price: 30,
-    tag: "Popular",
-    tagColor: "#2D6A4F",
-    description: "Deepen your prayer life and discover spiritual disciplines that lead to lasting transformation.",
-    icon: "🙏",
-  },
-];
+  const mapped = await Promise.all(
+    latestCourses.map(async (c) => {
+      let thumbnailUrl = c.thumbnailUrl;
 
-export default function CoursesPreview() {
+      if (!thumbnailUrl) {
+        const firstLesson = await db
+          .select({ cloudinaryPublicId: lessons.cloudinaryPublicId })
+          .from(lessons)
+          .where(eq(lessons.courseId, c.id))
+          .orderBy(lessons.order)
+          .limit(1)
+          .then((r) => r[0]);
+
+        if (firstLesson?.cloudinaryPublicId) {
+          thumbnailUrl = `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/video/upload/so_2/${firstLesson.cloudinaryPublicId}.jpg`;
+        }
+      }
+
+      return {
+        id: c.id,
+        slug: c.slug,
+        title: c.title,
+        description: c.description,
+        instructor: c.instructor,
+        category: c.category,
+        level: c.level,
+        price: c.price,
+        isFree: c.isFree,
+        thumbnailUrl,
+      };
+    })
+  );
+
   return (
-    <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap');
-
-        .courses-section {
-          background: #f4f6fb;
-          padding: 6rem 2rem;
-          font-family: 'DM Sans', sans-serif;
-        }
-        .courses-inner {
-          max-width: 1280px;
-          margin: 0 auto;
-        }
-        .courses-header {
-          display: flex;
-          align-items: flex-end;
-          justify-content: space-between;
-          margin-bottom: 3rem;
-          flex-wrap: wrap;
-          gap: 1rem;
-        }
-        .section-eyebrow {
-          font-size: 0.75rem;
-          text-transform: uppercase;
-          letter-spacing: 0.14em;
-          color: #C9902A;
-          font-weight: 600;
-          margin-bottom: 0.5rem;
-        }
-        .section-title {
-          font-family: 'Cormorant Garamond', serif;
-          font-size: 2.5rem;
-          font-weight: 700;
-          color: #1B3A6B;
-          margin: 0;
-          line-height: 1.15;
-        }
-        .view-all-link {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          font-size: 0.875rem;
-          font-weight: 500;
-          color: #1B3A6B;
-          text-decoration: none;
-          border-bottom: 1.5px solid rgba(27,58,107,0.25);
-          padding-bottom: 2px;
-          transition: all 0.2s;
-        }
-        .view-all-link:hover { color: #C9902A; border-color: #C9902A; }
-
-        .courses-grid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 1.5rem;
-        }
-        .course-card {
-          background: #fff;
-          border-radius: 20px;
-          overflow: hidden;
-          border: 1px solid rgba(27,58,107,0.06);
-          transition: all 0.3s;
-          display: flex;
-          flex-direction: column;
-        }
-        .course-card:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 16px 48px rgba(27,58,107,0.1);
-          border-color: rgba(27,58,107,0.1);
-        }
-        .course-thumb {
-          height: 160px;
-          background: linear-gradient(135deg, #1B3A6B, #0c1f3d);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 3rem;
-          position: relative;
-        }
-        .course-thumb::after {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: radial-gradient(circle at 70% 30%, rgba(201,144,42,0.15), transparent 60%);
-        }
-        .course-tag {
-          position: absolute;
-          top: 14px;
-          left: 14px;
-          padding: 0.3rem 0.75rem;
-          border-radius: 100px;
-          font-size: 0.72rem;
-          font-weight: 700;
-          color: #fff;
-          letter-spacing: 0.05em;
-          text-transform: uppercase;
-          z-index: 1;
-        }
-        .course-body {
-          padding: 1.5rem;
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-        }
-        .course-title {
-          font-family: 'Cormorant Garamond', serif;
-          font-size: 1.25rem;
-          font-weight: 700;
-          color: #1B3A6B;
-          margin-bottom: 0.6rem;
-          line-height: 1.3;
-        }
-        .course-desc {
-          font-size: 0.85rem;
-          color: #6B7280;
-          line-height: 1.65;
-          margin-bottom: 1.25rem;
-          font-weight: 300;
-          flex: 1;
-        }
-        .course-meta {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-          padding-top: 1rem;
-          border-top: 1px solid rgba(27,58,107,0.06);
-          margin-top: auto;
-          flex-wrap: wrap;
-        }
-        .course-instructor {
-          font-size: 0.8rem;
-          color: #9CA3AF;
-          display: flex;
-          align-items: center;
-          gap: 4px;
-          flex: 1;
-        }
-        .course-sessions {
-          font-size: 0.8rem;
-          color: #9CA3AF;
-          display: flex;
-          align-items: center;
-          gap: 4px;
-        }
-        .course-footer {
-          padding: 1rem 1.5rem 1.5rem;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        }
-        .course-price {
-          font-size: 1.5rem;
-          font-weight: 700;
-          color: #1B3A6B;
-          font-family: 'Cormorant Garamond', serif;
-        }
-        .course-price span {
-          font-size: 0.85rem;
-          font-weight: 400;
-          color: #9CA3AF;
-          font-family: 'DM Sans', sans-serif;
-        }
-        .enroll-btn {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          padding: 0.6rem 1.25rem;
-          background: #1B3A6B;
-          color: #fff;
-          font-size: 0.85rem;
-          font-weight: 600;
-          border-radius: 8px;
-          text-decoration: none;
-          transition: all 0.2s;
-          font-family: 'DM Sans', sans-serif;
-        }
-        .enroll-btn:hover {
-          background: #C9902A;
-          transform: translateY(-1px);
-        }
-
-        @media (max-width: 900px) {
-          .courses-grid { grid-template-columns: 1fr 1fr; }
-        }
-        @media (max-width: 580px) {
-          .courses-grid { grid-template-columns: 1fr; }
-        }
-      `}</style>
-
-      <section className="courses-section">
-        <div className="courses-inner">
-          <div className="courses-header">
-            <div>
-              <p className="section-eyebrow">Learn & Grow</p>
-              <h2 className="section-title">Featured Courses</h2>
-            </div>
-            <Link href="/courses" className="view-all-link">
-              View All Courses
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <path d="M5 12h14M12 5l7 7-7 7"/>
-              </svg>
-            </Link>
+    <section className="bg-[#f4f6fb] py-24 px-8 font-sans">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex items-end justify-between mb-12 flex-wrap gap-4">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-[#C9902A] font-semibold mb-2">Learn & Grow</p>
+            <h2 className="font-serif text-4xl font-bold text-[#1B3A6B] leading-tight">Featured Courses</h2>
           </div>
+          <Link href="/courses" className="inline-flex items-center gap-1.5 text-sm font-medium text-[#1B3A6B] border-b border-[#1B3A6B]/25 pb-0.5 hover:text-[#C9902A] hover:border-[#C9902A] transition-all">
+            View All Courses
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </Link>
+        </div>
 
-          <div className="courses-grid">
-            {courses.map((course) => (
-              <div key={course.id} className="course-card">
-                <div className="course-thumb">
-                  <span
-                    className="course-tag"
-                    style={{ background: course.tagColor }}
-                  >
-                    {course.tag}
-                  </span>
-                  <span style={{ zIndex: 1 }}>{course.icon}</span>
-                </div>
-                <div className="course-body">
-                  <h3 className="course-title">{course.title}</h3>
-                  <p className="course-desc">{course.description}</p>
-                  <div className="course-meta">
-                    <span className="course-instructor">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+        {mapped.length === 0 ? (
+          <div className="text-center py-20 text-gray-400 text-sm">No courses available yet. Check back soon!</div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {mapped.map((course) => (
+              <div key={course.id} className="bg-white rounded-2xl overflow-hidden border border-[#1B3A6B]/6 flex flex-col transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-[#1B3A6B]/10 hover:border-[#1B3A6B]/10">
+                <div className="h-40 bg-[#1B3A6B] relative overflow-hidden">
+                  {course.thumbnailUrl ? (
+                    <img src={course.thumbnailUrl} alt={course.title} className="absolute inset-0 w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <svg className="w-12 h-12 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15 10l4.553-2.069A1 1 0 0121 8.87v6.26a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
                       </svg>
-                      {course.instructor}
-                    </span>
-                    <span className="course-sessions">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                      </svg>
-                      {course.sessions} sessions
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(201,144,42,0.15),transparent_60%)]" />
+                  <div className="absolute top-3 left-3 flex gap-2 z-10">
+                    <span className="text-[0.7rem] font-bold bg-[#C9902A] text-white px-2.5 py-0.5 rounded-full uppercase tracking-wide">{course.category}</span>
+                    <span className="text-[0.7rem] font-semibold bg-white/20 text-white px-2.5 py-0.5 rounded-full backdrop-blur-sm">{course.level}</span>
+                  </div>
+                  <div className="absolute top-3 right-3 z-10">
+                    <span className={`text-[0.7rem] font-bold px-2.5 py-1 rounded-full ${course.isFree ? "bg-green-500 text-white" : "bg-white text-[#1B3A6B]"}`}>
+                      {course.isFree ? "FREE" : `₦${(course.price / 100).toLocaleString()}`}
                     </span>
                   </div>
                 </div>
-                <div className="course-footer">
-                  <div className="course-price">
-                    ${course.price} <span>/ one-time</span>
+
+                <div className="p-6 flex-1 flex flex-col">
+                  <h3 className="font-serif text-[#1B3A6B] text-xl font-bold leading-snug mb-2 line-clamp-2">{course.title}</h3>
+                  <p className="text-[0.85rem] text-gray-500 leading-relaxed font-light flex-1 line-clamp-2 mb-5">{course.description}</p>
+                  <div className="flex items-center gap-2 pt-4 border-t border-[#1B3A6B]/6">
+                    <div className="w-6 h-6 rounded-full bg-[#1B3A6B]/10 flex items-center justify-center text-[10px] font-bold text-[#1B3A6B] shrink-0">{course.instructor[0]}</div>
+                    <span className="text-xs text-gray-400 truncate">{course.instructor}</span>
                   </div>
-                  <Link href={`/courses/${course.id}`} className="enroll-btn">
+                </div>
+
+                <div className="px-6 pb-6 flex items-center justify-between">
+                  <div className="font-serif text-2xl font-bold text-[#1B3A6B]">
+                    {course.isFree ? "Free" : (
+                      <>{`₦${(course.price / 100).toLocaleString()}`}<span className="font-sans text-sm font-normal text-gray-400 ml-1">/ one-time</span></>
+                    )}
+                  </div>
+                  <Link href={`/courses/${course.slug}`} className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#1B3A6B] text-white text-sm font-semibold rounded-lg hover:bg-[#C9902A] hover:-translate-y-px transition-all duration-200">
                     Enroll
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <path d="M5 12h14M12 5l7 7-7 7"/>
-                    </svg>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                   </Link>
                 </div>
               </div>
             ))}
           </div>
-        </div>
-      </section>
-    </>
+        )}
+      </div>
+    </section>
   );
 }
