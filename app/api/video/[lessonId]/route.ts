@@ -73,7 +73,6 @@
 //   }
 // }
 
-
 import { auth } from "@/auth";
 import { db } from "@/db";
 import { lessons, purchases } from "@/db/schema";
@@ -114,44 +113,15 @@ export async function GET(
       }
     }
 
+    // Build the direct Cloudinary URL
     const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
     const videoUrl = `https://res.cloudinary.com/${cloudName}/video/upload/${lesson.cloudinaryPublicId}.mp4`;
 
-    // Forward the Range header from the client if present (needed for mobile)
-    const rangeHeader = req.headers.get("range");
+    // Return the URL as JSON — client fetches directly from Cloudinary
+    return NextResponse.json({ url: videoUrl });
 
-    const fetchHeaders: HeadersInit = {};
-    if (rangeHeader) {
-      fetchHeaders["Range"] = rangeHeader;
-    }
-
-    const videoResponse = await fetch(videoUrl, { headers: fetchHeaders });
-
-    if (!videoResponse.ok && videoResponse.status !== 206) {
-      console.error("Cloudinary error:", videoResponse.status);
-      return NextResponse.json({ error: "Failed to fetch video" }, { status: 502 });
-    }
-
-    const headers = new Headers();
-    headers.set("Content-Type", "video/mp4");
-    headers.set("Cache-Control", "private, no-store");
-    headers.set("Accept-Ranges", "bytes");
-
-    // Forward range-related headers back to the client
-    const contentLength = videoResponse.headers.get("Content-Length");
-    const contentRange = videoResponse.headers.get("Content-Range");
-    const contentType = videoResponse.headers.get("Content-Type");
-
-    if (contentLength) headers.set("Content-Length", contentLength);
-    if (contentRange) headers.set("Content-Range", contentRange);
-    if (contentType) headers.set("Content-Type", contentType);
-
-    return new NextResponse(videoResponse.body, {
-      status: videoResponse.status, // 206 for partial, 200 for full
-      headers,
-    });
   } catch (error) {
-    console.error("Video proxy error:", error);
-    return NextResponse.json({ error: "Failed to stream video" }, { status: 500 });
+    console.error("Video error:", error);
+    return NextResponse.json({ error: "Failed to load video" }, { status: 500 });
   }
 }
