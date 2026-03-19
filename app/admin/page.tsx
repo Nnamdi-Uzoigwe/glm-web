@@ -139,7 +139,11 @@ export default async function AdminDashboard() {
     { label: "Manage Courses", href: "/admin/courses", icon: "📋", desc: "Edit, publish or unpublish courses" },
     { label: "New Devotional", href: "/admin/devotionals/new", icon: "📖", desc: "Write and publish a new devotional" },
     { label: "Manage Devotionals", href: "/admin/devotionals", icon: "🗂️", desc: "Edit or unpublish devotionals" },
+    { label: "New Event", href: "/admin/events/new", icon: "📅", desc: "Create and publish a new event" },
+    { label: "Manage Events", href: "/admin/events", icon: "🗓️", desc: "Edit, publish or delete events" },
     { label: "View Users", href: "/admin/users", icon: "👥", desc: "See all registered users" },
+    { label: "View Messages", href: "/admin/messages", icon: "✉️", desc: "Read contact form submissions" },
+    { label: "View Donations", href: "/admin/donations", icon: "💝", desc: "Track all donations received" },
   ];
 
   return (

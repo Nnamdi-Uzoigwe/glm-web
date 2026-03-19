@@ -176,3 +176,30 @@ export const eventRsvps = pgTable("event_rsvp", {
   email: text("email").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+
+// ─── CONTACT MESSAGES ─────────────────────────────────────────────────────────
+export const contactMessages = pgTable("contact_message", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone"),
+  subject: text("subject").notNull(),
+  message: text("message").notNull(),
+  read: boolean("read").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// ─── DONATIONS ────────────────────────────────────────────────────────────────
+export const donations = pgTable("donation", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  amount: integer("amount").notNull(), // in kobo
+  frequency: text("frequency").notNull().default("one-time"),
+  fund: text("fund").notNull(),
+  paystackReference: text("paystack_reference").unique(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+
